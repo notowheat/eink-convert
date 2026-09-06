@@ -4,12 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>reTerminal 800x600 Card Generator</title>
+
+  <!-- HTML to Image Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- CodeMirror for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 16px;
+      padding: 20px;
       background: #f0f2f5;
       color: #333;
       display: flex;
@@ -17,34 +28,24 @@
       align-items: center;
     }
     .container {
-      max-width: 860px;
+      max-width: 900px;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
     }
     .panel {
       background: #fff;
-      padding: 16px;
+      padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    textarea {
-      width: 100%;
-      height: 120px;
-      box-sizing: border-box;
-      font-family: monospace;
-      font-size: 13px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      resize: vertical;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .btn-row {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 12px;
+      margin-top: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
     button {
       padding: 10px 18px;
@@ -54,17 +55,47 @@
       border-radius: 4px;
       font-weight: 600;
       cursor: pointer;
+      font-size: 14px;
     }
     button:hover { background: #0052a3; }
     .btn-secondary { background: #555; }
     .btn-secondary:hover { background: #333; }
-    
+    .btn-success { background: #198754; font-size: 15px; }
+    .btn-success:hover { background: #146c43; }
+
+    /* CodeMirror Overrides for larger edit area */
+    .CodeMirror {
+      height: 400px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .filename-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+      margin-top: 16px;
+    }
+    .filename-container input {
+      padding: 8px 12px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 250px;
+    }
+
     /* Viewport preview container: strict 800x600 */
     .preview-wrapper {
       overflow-x: auto;
       background: #ddd;
-      padding: 12px;
-      border-radius: 6px;
+      padding: 16px;
+      border-radius: 8px;
       display: flex;
       justify-content: center;
     }
@@ -76,32 +107,39 @@
       background: #fff;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>reTerminal Recipe Formatter (800×600)</h2>
+  <h2>reTerminal Display Manager</h2>
 
-  <!-- Controls -->
+  <!-- Editor Panel -->
   <div class="panel">
-    <label><strong>Option A: Paste Custom HTML</strong></label>
-    <textarea id="html-input" placeholder="Paste HTML & inline CSS here..."></textarea>
+    <label style="font-size: 16px; font-weight: 700;">HTML Editor</label>
+    <textarea id="html-input"></textarea>
     
     <div class="btn-row">
-      <button onclick="renderCustomHtml()">Preview HTML</button>
-      <button class="btn-secondary" onclick="loadDefaultTemplate()">Load Default Recipe Template</button>
+      <button onclick="renderCustomHtml()">Update Preview</button>
+      <button class="btn-secondary" onclick="loadDefaultTemplate()">Reset to Default</button>
     </div>
 
-    <hr style="margin: 16px 0; border: none; border-top: 1px solid #eee;">
+    <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;">
 
-    <label><strong>Option B: Upload Existing JPG/PNG (Fit to 800×600)</strong></label><br>
-    <input type="file" id="image-upload" accept="image/*" style="margin-top: 8px;" onchange="handleImageUpload(event)">
+    <label style="font-size: 16px; font-weight: 700;">Or Upload an Image (Auto-fits to 800×600)</label><br>
+    <input type="file" id="image-upload" accept="image/*" style="margin-top: 10px;" onchange="handleImageUpload(event)">
+  </div>
 
-    <div class="btn-row" style="margin-top: 16px;">
-      <button style="background: #198754; font-size: 16px;" onclick="exportToJpg()">Download 800×600 JPG</button>
+  <!-- Export Panel -->
+  <div class="panel">
+    <label style="font-size: 16px; font-weight: 700;">Save File</label>
+    <div class="filename-container">
+      <label for="filename-input">Filename:</label>
+      <input type="text" id="filename-input" value="my_recipe">
+      <span style="font-weight: bold; color: #555;">.jpg</span>
+      <button class="btn-success" style="margin-left: auto;" onclick="exportToJpg()">Download 800×600 JPG</button>
     </div>
   </div>
 
@@ -113,9 +151,18 @@
 
 <script>
   const target = document.getElementById('render-target');
+  
+  // Initialize CodeMirror
+  const editor = CodeMirror.fromTextArea(document.getElementById('html-input'), {
+    mode: "htmlmixed",
+    theme: "dracula",
+    lineNumbers: true,
+    lineWrapping: true,
+    indentUnit: 2
+  });
 
   function renderCustomHtml() {
-    const rawHtml = document.getElementById('html-input').value;
+    const rawHtml = editor.getValue();
     if (!rawHtml.trim()) return;
     target.innerHTML = rawHtml;
   }
@@ -125,63 +172,78 @@
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(evt) {
-      target.innerHTML = `
+      const imgHtml = `
         <div style="width: 800px; height: 600px; display: flex; align-items: center; justify-content: center; background: #fff;">
           <img src="${evt.target.result}" style="max-width: 800px; max-height: 600px; object-fit: contain;">
         </div>
       `;
+      editor.setValue(imgHtml);
+      target.innerHTML = imgHtml;
     };
     reader.readAsDataURL(file);
   }
 
   function loadDefaultTemplate() {
-    const defaultTemplate = `
-<div style="width: 800px; height: 600px; box-sizing: border-box; padding: 28px 36px; display: flex; flex-direction: column; justify-content: space-between; font-family: sans-serif; background: #fff; color: #111;">
-  <div style="border-bottom: 3px solid #111; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline;">
-    <h1 style="font-size: 26px; font-weight: 800; margin: 0; text-transform: uppercase;">Bánh Mì Prep Guide</h1>
-    <span style="font-size: 13px; font-weight: 700; background: #111; color: #fff; padding: 3px 8px; border-radius: 4px;">RECIPE CARD</span>
+    const defaultTemplate = `<div style="width: 800px; height: 600px; box-sizing: border-box; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #ffffff; color: #000000; overflow: hidden;">
+  <!-- Header Bar -->
+  <div style="border-bottom: 5px solid #000000; padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="font-size: 30px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">Bánh Mì Prep Guide</h1>
+    <span style="font-size: 18px; font-weight: 900; background: #000000; color: #ffffff; padding: 4px 12px; border-radius: 4px;">RECIPE</span>
   </div>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; height: calc(100% - 56px); margin-top: 14px;">
-    <div style="border: 2px solid #222; border-radius: 8px; padding: 16px 20px; background: #fafafa; display: flex; flex-direction: column; justify-content: space-between;">
-      <div style="font-size: 18px; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 6px;">Lemongrass Marinade</div>
-      <div style="font-size: 15px; line-height: 1.6;">
-        <div>• <b>2 stalks</b> Lemongrass</div>
-        <div>• <b>4 cloves</b> Garlic (minced)</div>
-        <div>• <b>2 small</b> Shallots (or ¼ onion)</div>
-        <div>• <b>2 tbsp</b> Fish Sauce</div>
-        <div>• <b>1 tbsp</b> Soy Sauce (or Maggi)</div>
-        <div>• <b>1 tbsp</b> Brown Sugar</div>
-        <div>• <b>1 tbsp</b> Vegetable Oil</div>
-        <div>• <b>½ tsp</b> Black Pepper</div>
-        <div>• <b>1 tsp</b> Sesame Oil</div>
+
+  <!-- Content Grid -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 520px; margin-top: 8px;">
+    
+    <!-- Left Column: Lemongrass Marinade -->
+    <div style="border: 4px solid #000000; border-radius: 8px; padding: 12px 14px; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="font-size: 23px; font-weight: 900; border-bottom: 3px solid #000000; padding-bottom: 4px; text-transform: uppercase;">Marinade</div>
+      <div style="font-size: 19px; font-weight: 700; line-height: 1.25; color: #000000; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding-top: 6px;">
+        <div>• 2 stalks Lemongrass</div>
+        <div>• 4 cloves Garlic <span style="font-weight: 500; font-size: 16px;">(minced)</span></div>
+        <div>• 2 Shallots <span style="font-weight: 500; font-size: 16px;">(or ¼ onion)</span></div>
+        <div>• 2 tbsp Fish Sauce</div>
+        <div>• 1 tbsp Soy Sauce</div>
+        <div>• 1 tbsp Brown Sugar</div>
+        <div>• 1 tbsp Cooking Oil</div>
+        <div>• ½ tsp Black Pepper</div>
+        <div>• 1 tsp Sesame Oil</div>
       </div>
     </div>
-    <div style="border: 2px solid #222; border-radius: 8px; padding: 16px 20px; background: #fafafa; display: flex; flex-direction: column; justify-content: space-between;">
-      <div style="font-size: 18px; font-weight: 700; border-bottom: 2px solid #ddd; padding-bottom: 6px;">Pickled Veggies (Đồ Chua)</div>
-      <div style="font-size: 15px; line-height: 1.6;">
-        <div>• <b>1 cup</b> Water</div>
-        <div>• <b>1 cup</b> White Vinegar</div>
-        <div>• <b>½ cup</b> Granulated Sugar</div>
-        <div>• <b>1 tbsp</b> Salt</div>
-        <div>• <b>2 cups</b> Julienned Daikon</div>
-        <div>• <b>2 cups</b> Julienned Carrot</div>
+
+    <!-- Right Column: Pickled Veggies -->
+    <div style="border: 4px solid #000000; border-radius: 8px; padding: 12px 14px; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="font-size: 23px; font-weight: 900; border-bottom: 3px solid #000000; padding-bottom: 4px; text-transform: uppercase;">Pickled Veggies</div>
+      <div style="font-size: 20px; font-weight: 700; line-height: 1.35; color: #000000; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding-top: 6px;">
+        <div>• 1 cup Water</div>
+        <div>• 1 cup White Vinegar</div>
+        <div>• ½ cup Sugar</div>
+        <div>• 1 tbsp Salt</div>
+        <div>• 2 cups Daikon <span style="font-weight: 500; font-size: 17px;">(julienne)</span></div>
+        <div>• 2 cups Carrot <span style="font-weight: 500; font-size: 17px;">(julienne)</span></div>
+      </div>
+      <div style="font-size: 16px; font-weight: 800; border-top: 2px solid #000000; padding-top: 6px; text-align: center;">
+        ĐỒ CHUA
       </div>
     </div>
   </div>
 </div>`;
-    document.getElementById('html-input').value = defaultTemplate;
+    editor.setValue(defaultTemplate);
     target.innerHTML = defaultTemplate;
   }
 
   function exportToJpg() {
+    let filename = document.getElementById('filename-input').value.trim();
+    if (!filename) filename = 'recipe_800x600';
+    if (!filename.toLowerCase().endsWith('.jpg')) filename += '.jpg';
+
     html2canvas(target, {
       width: 800,
       height: 600,
-      scale: 1, // keeps output native 1:1 at 800x600
+      scale: 1, 
       useCORS: true
     }).then(canvas => {
       const link = document.createElement('a');
-      link.download = 'recipe_800x600.jpg';
+      link.download = filename;
       link.href = canvas.toDataURL('image/jpeg', 0.95);
       link.click();
     });
