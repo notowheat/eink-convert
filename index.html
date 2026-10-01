@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>reTerminal 800x600 Card Generator</title>
+  <title>reTerminal 800x480 Card Generator</title>
 
   <!-- HTML to Image Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -90,7 +90,7 @@
       width: 250px;
     }
 
-    /* Viewport preview container: strict 800x600 */
+    /* Viewport preview container: strict 800x480 */
     .preview-wrapper {
       overflow-x: auto;
       background: #ddd;
@@ -102,8 +102,8 @@
     #render-target {
       width: 800px;
       min-width: 800px;
-      height: 600px;
-      min-height: 600px;
+      height: 480px;
+      min-height: 480px;
       background: #fff;
       position: relative;
       overflow: hidden;
@@ -128,7 +128,7 @@
 
     <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;">
 
-    <label style="font-size: 16px; font-weight: 700;">Or Upload an Image (Auto-fits to 800×600)</label><br>
+    <label style="font-size: 16px; font-weight: 700;">Or Upload an Image (Auto-fits to 800×480)</label><br>
     <input type="file" id="image-upload" accept="image/*" style="margin-top: 10px;" onchange="handleImageUpload(event)">
   </div>
 
@@ -139,11 +139,11 @@
       <label for="filename-input">Filename:</label>
       <input type="text" id="filename-input" value="my_recipe">
       <span style="font-weight: bold; color: #555;">.jpg</span>
-      <button class="btn-success" style="margin-left: auto;" onclick="exportToJpg()">Download 800×600 JPG</button>
+      <button class="btn-success" style="margin-left: auto;" onclick="exportToJpg()">Download 800×480 JPG</button>
     </div>
   </div>
 
-  <!-- 800x600 Viewport Box -->
+  <!-- 800x480 Viewport Box -->
   <div class="preview-wrapper">
     <div id="render-target"></div>
   </div>
@@ -173,8 +173,8 @@
     const reader = new FileReader();
     reader.onload = function(evt) {
       const imgHtml = `
-        <div style="width: 800px; height: 600px; display: flex; align-items: center; justify-content: center; background: #fff;">
-          <img src="${evt.target.result}" style="max-width: 800px; max-height: 600px; object-fit: contain;">
+        <div style="width: 800px; height: 480px; display: flex; align-items: center; justify-content: center; background: #fff;">
+          <img src="${evt.target.result}" style="max-width: 800px; max-height: 480px; object-fit: contain;">
         </div>
       `;
       editor.setValue(imgHtml);
@@ -184,7 +184,7 @@
   }
 
   function loadDefaultTemplate() {
-    const defaultTemplate = `<div style="width: 800px; height: 600px; box-sizing: border-box; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #ffffff; color: #000000; overflow: hidden;">
+    const defaultTemplate = `<div style="width: 800px; height: 480px; box-sizing: border-box; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #ffffff; color: #000000; overflow: hidden;">
   <!-- Header Bar -->
   <div style="border-bottom: 5px solid #000000; padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
     <h1 style="font-size: 30px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">Bánh Mì Prep Guide</h1>
@@ -192,7 +192,7 @@
   </div>
 
   <!-- Content Grid -->
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 520px; margin-top: 8px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 400px; margin-top: 8px;">
     
     <!-- Left Column: Lemongrass Marinade -->
     <div style="border: 4px solid #000000; border-radius: 8px; padding: 12px 14px; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between;">
@@ -233,12 +233,12 @@
 
   function exportToJpg() {
     let filename = document.getElementById('filename-input').value.trim();
-    if (!filename) filename = 'recipe_800x600';
+    if (!filename) filename = 'recipe_800x480';
     if (!filename.toLowerCase().endsWith('.jpg')) filename += '.jpg';
 
     html2canvas(target, {
       width: 800,
-      height: 600,
+      height: 480,
       scale: 1, 
       useCORS: true
     }).then(canvas => {
